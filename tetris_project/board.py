@@ -11,7 +11,7 @@ class Board:
         self.squares = self.create_squares()
         self.free_squares = self.create_free_squares()
         # debug
-        self.element = Element([[0, 0], [0, 1], [1, 0], [1, 1]])
+        self.element = Element()
         self.old_elements = []
 
     def create_squares(self):
@@ -24,10 +24,10 @@ class Board:
                 squares[-1].append(pg.Rect(square_x, square_y, self.square_length, self.square_length))
         return squares
 
-    def create_free_squares(self):
+    def create_free_squares(self) -> list[list[bool]]:
         free_squares = []
         for y in range(self.height):
-            free_squares.append([])
+            free_squares.append([True])
             for x in range(self.width):
                 free_squares[-1].append(True)
         return free_squares
@@ -43,18 +43,11 @@ class Board:
                 pg.draw.rect(screen, 'white', self.squares[y][x], 1)
 
     def update(self):
-        self.element.update()
+        self.element.update(self.free_squares)
         if not self.element.active:
-            index = 0
-            while index < 4:
-                coords = self.element.coordinates[index]
-                x = coords[0]
-                y = coords[1]
-                print(coords)
+            for x, y in self.element.coordinates:
                 self.free_squares[y][x] = False
-                print(x, y, self.free_squares[y][x])
+                # print(x, y, self.free_squares[y][x])
 
             self.old_elements.append(self.element)
-            self.element = Element([[0, 0], [0, 1], [1, 0], [1, 1]])
-
-
+            self.element = Element()

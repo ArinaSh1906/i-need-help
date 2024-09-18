@@ -1,47 +1,56 @@
 import pygame as pg
+from constants import ELEMENT_COORDS, ELEMENT_COLORS, ELEMENTS
+import random
 
 
 class Element:
-    def __init__(self, coordinates, color='yellow', fall_speed=60, move_speed=5):
-        self.coordinates = coordinates
+    def __init__(self, fall_speed=60, move_speed=5):
+        self.figure = random.choice(ELEMENTS)
+        original_coords: list[list[int]] = ELEMENT_COORDS[self.figure]
+        self.coordinates = []
+        for coord in original_coords:
+            self.coordinates.append(coord.copy())
         self.fall_speed = fall_speed
         self.move_speed = move_speed
         self.active = True
         self.frame_counter = 1
-        self.color = color
+        self.color = ELEMENT_COLORS[self.figure]
         # self.board = Board()
 
-    def update(self):
+    def update(self, free_squares):
         if self.active:
             if self.frame_counter % self.move_speed == 0:
-                self.move()
+                self.move(free_squares)
             if self.frame_counter % self.fall_speed == 0 and self.active:
-                self.fall()
+                self.fall(free_squares)
             self.frame_counter += 1
 
-    def fall(self):
+    def fall(self, free_squares):
         # сюда проверку на свободную клетку
-        # for element in self.coordinates:
-        #     if element
+        for x, y in self.coordinates:
+            if y == 19 or not free_squares[y + 1][x]:
+                self.active = False
+                return
         for element in self.coordinates:
             element[1] += 1
-            if element[1] == 19:
-                self.active = False
 
-    def move(self):
+    def move(self, free_squares):
         # сюда проверку на свободную клетку
 
         can_move_left = True
         can_move_right = True
         can_move_down = True
         buttons = pg.key.get_pressed()
+
         # проверить, можем ли двигаться в выбранном направлении
-        for element in self.coordinates:
-            if element[0] == 0:
+        for x, y in self.coordinates:
+            if x == 0 or not free_squares[y][x - 1]:
                 can_move_left = False
-            if element[0] == 9:
+
+            if x == 9 or not free_squares[y][x + 1]:
                 can_move_right = False
-            if element[1] == 19:
+
+            if y == 19 or not free_squares[y + 1][x]:
                 can_move_down = False
                 self.active = False
 
