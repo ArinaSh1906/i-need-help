@@ -25,27 +25,39 @@ class Game:
             SQUARES_Y
         )
         self.clock = pg.time.Clock()
-        self.state = pg.event.get()
+        self.state = 'pause'
 
     def mainloop(self):
         while True:
             # обработка событий
             events = pg.event.get()
-            if self.state == pg.K_SPACE:
+
+            for event in events:
+                # если тип события...
+                if event.type == pg.QUIT:
+                    return
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        if self.state == 'pause':
+                            self.state = 'play'
+                        else:
+                            self.state = 'pause'
+
+            if self.state == 'pause':
                 pass
-            else:
-                for event in events:
-                    # если тип события...
-                    if event.type == pg.QUIT:
-                        return
-                # основные действия
-                self.main_actions()
+            elif self.state == 'play':
+                self.play()
 
-                # draw
-                self.draw()
+    def play(self):
 
-                # time tick
-                self.clock.tick(FPS)
+        # основные действия
+        self.main_actions()
+
+        # draw
+        self.draw()
+
+        # time tick
+        self.clock.tick(FPS)
 
     def main_actions(self):
         self.board.update()
