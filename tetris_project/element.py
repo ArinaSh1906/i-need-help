@@ -18,6 +18,8 @@ class Element:
         self.color = ELEMENT_COLORS[self.figure]
         self.coordinates = self.update_coords()
         # self.board = Board()
+        self.rotation_cooldown = False
+        self.counter = 0
 
     def update(self, occupied_squares):
         buttons = pg.key.get_pressed()
@@ -28,9 +30,14 @@ class Element:
             if self.frame_counter % self.fall_speed == 0 and self.active:
                 self.fall(occupied_squares)
                 self.coordinates = self.update_coords()
-            if buttons[pg.K_UP] and self.frame_counter % 15 == 0:
+            if buttons[pg.K_UP] and not self.rotation_cooldown:
                 self.rotate(occupied_squares)
                 self.coordinates = self.update_coords()
+            elif self.rotation_cooldown:
+                self.counter += 1
+                if self.counter == 15:
+                    self.rotation_cooldown = False
+                    self.counter = 0
             self.frame_counter += 1
 
     def update_coords(self) -> list[list[int]]:
@@ -79,6 +86,8 @@ class Element:
 
     def rotate(self, occupied_squares):
         if self.can_rotate(occupied_squares):
+            self.rotation_cooldown = True
+
             for index in range(len(self.points)):
                 point = self.points[index]
                 point[0], point[1] = -point[1], point[0]
